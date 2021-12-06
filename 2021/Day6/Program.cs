@@ -16,7 +16,6 @@ namespace Day6
             Console.WriteLine($"Initial State: {String.Join(',', shoal.Select(fish => fish.GetState()).ToList())}");
 
             int daysOfLife = 80;
-
             for (int day = 1; day <= daysOfLife; day++)
             {
                 List<Lanternfish> babyFish = new List<Lanternfish>();
@@ -30,25 +29,35 @@ namespace Day6
 
             Console.WriteLine($"Answer 1: {shoal.Count}");
 
-            shoal = ReanimateShoal(inputs);
+            long fishCount = HowManyFishAfter(256, inputs);
+            Console.WriteLine($"Answer 2: {fishCount}");
+        }
 
-            daysOfLife = 256;
+        private static long HowManyFishAfter(int daysOfLife, List<int> startingFish)
+        {
+            long[] states = new long[9];
+
+            foreach (int fish in startingFish) states[fish]++;
 
             for (int day = 1; day <= daysOfLife; day++)
             {
-                Console.WriteLine($"$Day {day} - {shoal.Count} fish.");
-                List<Lanternfish> babyFish = new List<Lanternfish>();
-                foreach (Lanternfish fish in shoal)
+                long newParents = states[0];
+                states[0] = 0;
+
+                for (int state = 1; state < states.Length; state++)
                 {
-                    Lanternfish baby = fish.TryAndGiveBirth();
-                    if (baby != null) babyFish.Add(baby);
+                    states[state - 1] = states[state];
+                    states[state] = 0;
+                }   
+
+                if (newParents > 0)
+                {
+                    states[6]+= newParents;
+                    states[8]+= newParents;
                 }
-                if (babyFish.Count > 0) shoal.AddRange(babyFish);
             }
-
-            Console.WriteLine($"Answer 2: {shoal.Count}");
+            return states.Sum();
         }
-
         private static List<Lanternfish> ReanimateShoal(List<int> fishStates)
         {
             List<Lanternfish> shoal = new List<Lanternfish>();
@@ -80,8 +89,6 @@ namespace Day6
 
             public Lanternfish TryAndGiveBirth()
             {
-                //state--;
-
                 if(--state == GIVE_BIRTH)
                 {
                     state = PREGNANT_AGAIN;
