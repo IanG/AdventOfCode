@@ -1,23 +1,29 @@
 ﻿IEnumerable<string> rucksacks = System.IO.File.ReadLines(args[0]);
 
-int prioritySum = 0;
+int prioritySum = rucksacks.Select(rucksack => GetPriority(CommonInCompartments(rucksack))).Sum();
 
-foreach(string rucksack in rucksacks)
+Console.WriteLine($"Part 1: {prioritySum}");
+
+prioritySum = rucksacks.Chunk(3)
+    .Select(groupRucksacks => groupRucksacks[0]
+        .Intersect(groupRucksacks[1])
+        .Intersect(groupRucksacks[2])
+        .First())
+    .Select(GetPriority)
+    .Sum();
+
+Console.WriteLine($"Part 2: {prioritySum}");
+
+char CommonInCompartments(string rucksack)
 {
-    Console.WriteLine(rucksack);
-
     string[] compartments = new string[]
     {
         rucksack.Substring(0, rucksack.Length / 2),
         rucksack.Substring(rucksack.Length / 2)
     };
 
-    char commonItem = compartments[0].Intersect(compartments[1]).First();
-
-    prioritySum += GetPriority(commonItem);
+    return compartments[0].Intersect(compartments[1]).First();
 }
-
-Console.WriteLine($"Part 1: {prioritySum}");
 
 int GetPriority(char item)
 {
