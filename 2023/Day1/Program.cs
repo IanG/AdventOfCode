@@ -17,7 +17,7 @@ if (!File.Exists(part1PuzzleInputFile))
 
 if (!File.Exists(part2PuzzleInputFile))
 {
-    Console.WriteLine($"Part 2 Puzzle input file '{part1PuzzleInputFile}' not found");
+    Console.WriteLine($"Part 2 Puzzle input file '{part2PuzzleInputFile}' not found");
     Environment.Exit(-1);
 }
 
