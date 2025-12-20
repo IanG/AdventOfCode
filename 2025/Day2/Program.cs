@@ -1,20 +1,57 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-Part1("part1puzzleinput.txt");
+﻿Part1("part1puzzleinput.txt");
+Part2("part2puzzleinput.txt");
 
 void Part1(string filename)
 {
-    List<long> invalidIds = [];
+    long sum = 0;
  
     foreach (Range range in GetRangesFromFile(filename))
     {
         for (long productId = range.Start; productId <= range.End; productId++)
         {
-            if (IsInvalidProductId(productId)) invalidIds.Add(productId);
+            if (IsInvalidProductId(productId)) sum += productId;
         }
     }
     
-    Console.WriteLine($"Part 1: {invalidIds.Sum()}");
+    Console.WriteLine($"Part 1: {sum}");
+}
+
+void Part2(string filename)
+{
+    long sum = 0;
+
+    foreach (Range range in GetRangesFromFile(filename))
+    {
+        for (long productId = range.Start; productId <= range.End; productId++)
+        {
+            if (IsProductIdRepeatedSequence(productId)) sum += productId;
+        }
+    }
+    
+    Console.WriteLine($"Part 2: {sum}");
+}
+
+static bool IsProductIdRepeatedSequence(long productId)
+{
+    const int maxLongDigits = 20;
+    Span<char> buffer = stackalloc char[maxLongDigits];
+    
+    if (!productId.TryFormat(buffer, out int charsWritten)) return false;
+
+    ReadOnlySpan<char> span = buffer[..charsWritten];
+    if (span.Length < 2) return false;
+
+    for (int patternLength = 1; patternLength <= span.Length / 2; patternLength++)
+    {
+        if (span.Length % patternLength != 0) continue;
+        
+        if (span[patternLength..].SequenceEqual(span[..^patternLength]))
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 static bool IsInvalidProductId(long productId)
