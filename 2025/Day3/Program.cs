@@ -1,12 +1,14 @@
 ﻿Part1("part1puzzleinput.txt");
+Part2("part2puzzleinput.txt");
 
 void Part1(string filename)
 {
-    int outputVoltage = 0;
+    const int batteryCount = 2;
+    long outputVoltage = 0;
     
     foreach (Bank bank in GetBanks(filename))
     {
-        int maxJoltage = GetMaxJoltageForBank(bank);
+        long maxJoltage = GetMaxJoltageForBank(bank, batteryCount);
         
         outputVoltage += maxJoltage;
     }
@@ -14,41 +16,51 @@ void Part1(string filename)
     Console.WriteLine($"Part 1: {outputVoltage}");
 }
 
-static int GetMaxJoltageForBank(Bank bank)
+void Part2(string filename)
+{
+    const int batteryCount = 12;
+    long outputVoltage = 0;
+    
+    foreach (Bank bank in GetBanks(filename))
+    {
+        long maxJoltage = GetMaxJoltageForBank(bank, batteryCount);
+        
+        outputVoltage += maxJoltage;
+    }
+    
+    Console.WriteLine($"Part 2: {outputVoltage}");
+}
+
+static long GetMaxJoltageForBank(Bank bank, int batteryCount)
 {
     ReadOnlySpan<int> joltages = bank.Joltages;
- 
-    // This Bank doesn't have enough batteries to calculate the bank Joltage
-    if (joltages.Length < 2) return 0;
-
-    // 1. Find the Peak Joltage ignoring the last battery
     
-    int peakJoltage = -1;
-    int peakIndex = -1;
+    if (joltages.Length < batteryCount) return 0;
+        
+    long totalVoltage = 0;
+    int currentStartIndex = 0;
 
-    for (int i = 0; i < joltages.Length - 1; i++)
+    for (int b = 0; b < batteryCount; b++)
     {
-        if (joltages[i] > peakJoltage)
+        int searchLimit = joltages.Length - (batteryCount - 1 - b);
+            
+        int peakValue = -1;
+        int peakIndex = -1;
+
+        for (int i = currentStartIndex; i < searchLimit; i++)
         {
-            peakJoltage = joltages[i];
-            peakIndex = i;
+            if (joltages[i] > peakValue)
+            {
+                peakValue = joltages[i];
+                peakIndex = i;
+            }
         }
+        
+        totalVoltage = (totalVoltage * 10) + peakValue;
+        currentStartIndex = peakIndex + 1;
     }
 
-    // 2. Find the next most powerful battery in the bank beyond the first
-    
-    int followerJoltage = 0;
-    ReadOnlySpan<int> remainingJoltages = joltages[(peakIndex + 1)..];
-
-    foreach (int joltage in remainingJoltages)
-    {
-        if (joltage > followerJoltage)
-        {
-            followerJoltage = joltage;
-        }
-    }
-
-    return (peakJoltage * 10) + followerJoltage;
+    return totalVoltage;
 }
 
 static IEnumerable<Bank> GetBanks(string filename)
