@@ -1,6 +1,9 @@
 ﻿const char rollOfPaper = '@';
+const char emptySpace = '.';
+const char pendingRemoval = 'X';
 
 Part1("part1puzzleinput.txt");
+Part2("part2puzzleinput.txt");
 
 static void Part1(string filename)
 {
@@ -26,6 +29,52 @@ static void Part1(string filename)
     Console.WriteLine($"Part 1: {countWithFewerThan4}");
 }
 
+static void Part2(string filename)
+{
+    char[,] grid = LoadGrid(filename);
+    int rows = grid.GetLength(0);
+    int cols = grid.GetLength(1);
+    int totalRemoved = 0;
+    bool gridChanged = true;
+    
+    while (gridChanged)
+    {
+        gridChanged = false;
+        
+        for (int y = 0; y < rows; y++)
+        {
+            for (int x = 0; x < cols; x++)
+            {
+                if (grid[y, x] == rollOfPaper)
+                {
+                    if (CountNeighbors(grid, x, y, rows, cols) < 4)
+                    {
+                        grid[y, x] = pendingRemoval; 
+                        gridChanged = true;
+                    }
+                }
+            }
+        }
+        
+        if (gridChanged)
+        {
+            for (int y = 0; y < rows; y++)
+            {
+                for (int x = 0; x < cols; x++)
+                {
+                    if (grid[y, x] == pendingRemoval)
+                    {
+                        grid[y, x] = emptySpace;
+                        totalRemoved++;
+                    }
+                }
+            }
+        }
+    }
+
+    Console.WriteLine($"Part 2: {totalRemoved}");
+}
+
 static int CountNeighbors(char[,] grid, int x, int y, int rows, int cols)
 {
     int count = 0;
@@ -42,7 +91,8 @@ static int CountNeighbors(char[,] grid, int x, int y, int rows, int cols)
         
         if (ny >= 0 && ny < rows && nx >= 0 && nx < cols)
         {
-            if (grid[ny, nx] == rollOfPaper)
+            char cell = grid[ny, nx];
+            if (cell is rollOfPaper or pendingRemoval)
             {
                 count++;
             }
