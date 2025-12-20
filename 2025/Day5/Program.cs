@@ -1,4 +1,5 @@
 ﻿Part1("part1puzzleinput.txt");
+Part2("part2puzzleinput.txt");
 static void Part1(string filename)
 {
     CafeteriaData data = LoadCafeteriaData(filename);
@@ -18,6 +19,51 @@ static void Part1(string filename)
     }
 
     Console.WriteLine($"Part 1: {validCount}");
+}
+
+static void Part2(string filename)
+{
+    CafeteriaData data = LoadCafeteriaData(filename);
+    FreshIngredientRange[] ranges = data.FreshIngredientRanges;
+
+    if (ranges.Length == 0)
+    {
+        Console.WriteLine("Part 2: 0");
+        return;
+    }
+    
+    // Sort Ranges
+    Array.Sort(ranges, (a, b) => a.Start.CompareTo(b.Start));
+    
+    // Merge/Reduce Ranges
+    int mergedCount = 0; 
+
+    for (int i = 1; i < ranges.Length; i++)
+    {
+        if (ranges[i].Start <= ranges[mergedCount].End + 1)
+        {
+            if (ranges[i].End > ranges[mergedCount].End)
+            {
+                ranges[mergedCount] = ranges[mergedCount] with { End = ranges[i].End };
+            }
+        }
+        else
+        {
+            mergedCount++;
+            ranges[mergedCount] = ranges[i];
+        }
+    }
+
+    // Sum
+    long totalUniqueIds = 0;
+    ReadOnlySpan<FreshIngredientRange> mergedSpan = ranges.AsSpan(0, mergedCount + 1);
+        
+    foreach (FreshIngredientRange range in mergedSpan)
+    {
+        totalUniqueIds += (range.End - range.Start + 1);
+    }
+
+    Console.WriteLine($"Part 2: {totalUniqueIds}");
 }
 
 static CafeteriaData LoadCafeteriaData(string filename)
