@@ -11,7 +11,7 @@
       <None Update="part1puzzleinput.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="partpuzzleinput.txt">
+      <None Update="part2puzzleinput.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
